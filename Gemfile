@@ -14,9 +14,9 @@ gem "jbuilder"
 gem "tzinfo-data", platforms: %i[ mswin mswin64 mingw x64_mingw jruby ]
 gem "bootsnap", require: false
 
-# Main project dependencies
 gem "rails_event_store"
-gem "sidekiq"
+gem "clerk-sdk-ruby"
+gem "faraday"
 
 group :development, :test do
   gem "debug", platforms: %i[ mri mswin mswin64 mingw x64_mingw ]
