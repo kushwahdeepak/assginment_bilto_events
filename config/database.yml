@@ -18,6 +18,10 @@ default: &default
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: postgres
+  password: postgres
+  host: localhost
+  port: 5432
 
 development:
   <<: *default
@@ -77,8 +81,4 @@ test:
 # Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
 # for a full overview on how database connection configuration can be specified.
 #
-production:
-  <<: *default
-  database: assginment_bilto_events_production
-  username: assginment_bilto_events
-  password: <%= ENV["ASSGINMENT_BILTO_EVENTS_DATABASE_PASSWORD"] %>
+
