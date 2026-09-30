@@ -1,5 +1,6 @@
-require "rails_event_store"
-require "arkency/command_bus"
+require "active_support/concern"
+require "active_model"
+
 module Command
   module Executable
     extend ActiveSupport::Concern
@@ -8,24 +9,6 @@ module Command
 
     def event_store
       Rails.configuration.event_store
-    end
-
-    def command_bus
-      Rails.configuration.command_bus
-    end
-  end
-
-  module Handler
-    extend ActiveSupport::Concern
-
-    included do
-      def event_store
-        Rails.configuration.event_store
-      end
-
-      def command_bus
-        Rails.configuration.command_bus
-      end
     end
   end
 end
