@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_29_150933) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_29_150936) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "event_stats", force: :cascade do |t|
+    t.string "event_id", null: false
+    t.integer "upvotes_count", default: 0, null: false
+    t.integer "downvotes_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_event_stats_on_event_id", unique: true
+  end
 
   create_table "event_store_events", force: :cascade do |t|
     t.uuid "event_id", null: false
