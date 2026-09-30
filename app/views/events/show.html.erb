@@ -1,0 +1,4 @@
+<main class="events-page event-detail">
+  <p><%= link_to "← All events", events_path, class: "back-link" %></p>
+  <%= render "event_card", event: @event, stat: @event_stat %>
+</main>

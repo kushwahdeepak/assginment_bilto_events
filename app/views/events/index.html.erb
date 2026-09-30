@@ -1,0 +1,41 @@
+<main class="events-page" data-clerk-publishable-key="<%= Rails.application.credentials.dig(Rails.env.to_sym, :CLERK_PUBLISHABLE_KEY) %>">
+  <header class="page-header">
+    <div>
+      <h1>Events</h1>
+      <p class="page-intro">Browse events and vote</p>
+    </div>
+    <div class="auth-panel">
+      <p id="clerk-account-status" class="account-status" role="status"></p>
+      <div id="clerk-auth-actions" hidden>
+        <button class="button button-secondary" id="clerk-sign-in" type="button">Sign in</button>
+        <button class="button button-primary" id="clerk-sign-up" type="button">Create account</button>
+      </div>
+      <div id="clerk-user-button" hidden></div>
+      <p id="clerk-status" class="muted" role="status"></p>
+    </div>
+  </header>
+
+  <% if @events.empty? %>
+    <section class="empty-state">
+      <h2>No events yet</h2>
+    </section>
+  <% else %>
+    <section class="events-grid" aria-label="Events">
+      <% @events.each do |event| %>
+        <%= render "event_card", event: event, stat: @event_stats[event.id.to_s] %>
+      <% end %>
+    </section>
+
+    <% if @total_pages > 1 %>
+      <nav class="pagination" aria-label="Event pages">
+        <% if @page > 1 %>
+          <%= link_to "← Previous", events_path(page: @page - 1, per_page: @per_page), class: "button button-secondary" %>
+        <% end %>
+        <span>Page <%= @page %> of <%= @total_pages %></span>
+        <% if @page < @total_pages %>
+          <%= link_to "Next →", events_path(page: @page + 1, per_page: @per_page), class: "button button-secondary" %>
+        <% end %>
+      </nav>
+    <% end %>
+  <% end %>
+</main>

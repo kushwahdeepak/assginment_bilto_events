@@ -1,0 +1,22 @@
+<article class="event-card">
+  <% if event.image_url.present? %>
+    <%= image_tag event.image_url, alt: "", class: "event-image", loading: "lazy" %>
+  <% else %>
+    <div class="event-image event-image-placeholder" aria-hidden="true">Billetto</div>
+  <% end %>
+
+  <div class="event-card-content">
+    <p class="event-date"><%= event.start_date&.strftime("%A, %-d %B %Y · %H:%M") || "Date to be announced" %></p>
+    <h2><%= link_to event.title, event_path(event), class: "event-title" %></h2>
+    <p class="event-description"><%= truncate(event.description.to_s, length: 180) %></p>
+
+    <div class="vote-summary" aria-label="Vote totals">
+      <span>▲ <%= stat&.upvotes_count || 0 %></span>
+      <span>▼ <%= stat&.downvotes_count || 0 %></span>
+    </div>
+    <div class="vote-actions">
+      <button class="button button-primary" data-event-id="<%= event.id %>" data-vote-type="upvote" disabled>Upvote</button>
+      <button class="button button-secondary" data-event-id="<%= event.id %>" data-vote-type="downvote" disabled>Downvote</button>
+    </div>
+  </div>
+</article>
