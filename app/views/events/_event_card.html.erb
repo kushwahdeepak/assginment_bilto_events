@@ -11,12 +11,20 @@
     <p class="event-description"><%= truncate(event.description.to_s, length: 180) %></p>
 
     <div class="vote-summary" aria-label="Vote totals">
-      <span>▲ <%= stat&.upvotes_count || 0 %></span>
+      <span id="vote-count">▲ <%= stat&.upvotes_count || 0 %></span>
       <span>▼ <%= stat&.downvotes_count || 0 %></span>
     </div>
     <div class="vote-actions">
-      <button class="button button-primary" data-event-id="<%= event.id %>" data-vote-type="upvote" disabled>Upvote</button>
-      <button class="button button-secondary" data-event-id="<%= event.id %>" data-vote-type="downvote" disabled>Downvote</button>
+      <% if user_signed_in? %>
+        <%= button_to "Upvote", event_votes_path(event), method: :post, params: { type: "upvote" }, class: "button button-primary" %>
+        <%= button_to "Downvote", event_votes_path(event), method: :post, params: { type: "downvote" }, class: "button button-secondary" %>
+      <% else %>
+        <button class="button button-primary" data-event-id="<%= event.id %>" data-vote-type="upvote" disabled>Upvote</button>
+        <button class="button button-secondary" data-event-id="<%= event.id %>" data-vote-type="downvote" disabled>Downvote</button>
+      <% end %>
+      <% if user_signed_in? %>
+        <%= link_to "Sign Out", "/sign_out", id: "mock-sign-out", class: "button" %>
+      <% end %>
     </div>
   </div>
 </article>

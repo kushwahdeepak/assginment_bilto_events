@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+(function () {
   var page = document.querySelector(".events-page");
   if (!page) return;
 
@@ -7,8 +7,14 @@ document.addEventListener("DOMContentLoaded", function () {
   var userButton = document.getElementById("clerk-user-button");
   var accountStatus = document.getElementById("clerk-account-status");
   var status = document.getElementById("clerk-status");
+  var mockUser = document.cookie.indexOf("mock_clerk_user_id=") !== -1;
 
-  if (!publishableKey) return; 
+  if (mockUser) {
+    enableMockVoting();
+    return;
+  }
+
+  if (!publishableKey) return;
 
   if (window.Clerk) {
     startClerk();
@@ -66,14 +72,21 @@ document.addEventListener("DOMContentLoaded", function () {
     button.disabled = true;
     status.textContent = "Submitting vote…";
 
-    window.Clerk.session.getToken().then(function (token) {
+    var request = mockUser
+      ? Promise.resolve(null)
+      : window.Clerk.session.getToken();
+
+    request.then(function (token) {
+      var headers = {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+      };
+      if (token) headers.Authorization = "Bearer " + token;
+      if (mockUser) headers["X-Mock-User-Id"] = "user_mock123";
+
       return fetch("/events/" + button.dataset.eventId + "/votes", {
         method: "POST",
-        headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": "application/json",
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
-        },
+        headers: headers,
         body: JSON.stringify({ type: button.dataset.voteType })
       });
     }).then(function (response) {
@@ -91,4 +104,15 @@ document.addEventListener("DOMContentLoaded", function () {
       button.disabled = false;
     });
   }
-});
+
+  function enableMockVoting() {
+    accountStatus.textContent = "Signed in";
+    document.getElementById("mock-sign-out").hidden = false;
+    document.querySelectorAll("[data-vote-type]").forEach(function (button) {
+      button.disabled = false;
+      button.addEventListener("click", function () {
+        submitVote(button);
+      });
+    });
+  }
+})();

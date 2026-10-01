@@ -83,3 +83,10 @@ User authentication is managed via Clerk.com.
 - For web access: Sign in using the Clerk authentication UI on the frontend.
 - For API access: Send the Clerk session token in the `Authorization` header when making POST requests to vote:
   `Authorization: Bearer <your_clerk_jwt_token>`
+
+## Testing
+
+Run all system/browser tests using:
+
+```bash
+bin/rails test:system

@@ -6,11 +6,12 @@
     </div>
     <div class="auth-panel">
       <p id="clerk-account-status" class="account-status" role="status"></p>
-      <div id="clerk-auth-actions" hidden>
-        <button class="button button-secondary" id="clerk-sign-in" type="button">Sign in</button>
-        <button class="button button-primary" id="clerk-sign-up" type="button">Create account</button>
+      <div id="clerk-auth-actions" <%= "hidden" if user_signed_in? %>>
+        <button class="button button-secondary" id="clerk-sign-in" type="button">Sign In</button>
+        <button class="button button-primary" id="clerk-sign-up" type="button">Create Account</button>
       </div>
       <div id="clerk-user-button" hidden></div>
+      <%= link_to "Sign Out", "/sign_out", id: "mock-sign-out", hidden: true, class: "button" %>
       <p id="clerk-status" class="muted" role="status"></p>
     </div>
   </header>

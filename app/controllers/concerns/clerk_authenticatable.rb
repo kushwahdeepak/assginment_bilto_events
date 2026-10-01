@@ -23,6 +23,14 @@ module ClerkAuthenticatable
   def current_user_id
     return @current_user_id if defined?(@current_user_id)
 
+    if Rails.env.test? && request.headers["X-Mock-User-Id"].present?
+      return @current_user_id = request.headers["X-Mock-User-Id"]
+    end
+
+    if Rails.env.test? && cookies[:mock_clerk_user_id].present?
+      return @current_user_id = cookies[:mock_clerk_user_id]
+    end
+
     authorization = request.headers["Authorization"].to_s.split(/\s+/)
     return nil unless authorization.length == 2 && authorization.first.casecmp("Bearer").zero?
 

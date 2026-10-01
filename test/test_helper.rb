@@ -10,6 +10,13 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
-    # Add more helper methods to be used by all tests here...
+    def sign_in_as(user)
+      visit root_path
+      page.driver.browser.manage.add_cookie(
+        name: "mock_clerk_user_id",
+        value: user.clerk_id,
+        path: "/"
+      )
+    end
   end
 end

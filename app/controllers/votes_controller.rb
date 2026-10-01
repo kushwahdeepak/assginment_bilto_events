@@ -18,7 +18,11 @@ class VotesController < ApplicationController
     command = command_class.new(event_id: params[:event_id].to_s, user_id: current_user_id)
 
     if Rails.configuration.command_bus.call(command)
-      render json: { status: "success" }, status: :created
+      if cookies[:mock_clerk_user_id].present? && request.headers["Accept"].to_s.include?("text/html")
+        redirect_to event_path(params[:event_id])
+      else
+        render json: { status: "success" }, status: :created
+        end
     else
       render json: { errors: command.errors.full_messages }, status: :unprocessable_entity
     end
