@@ -15,8 +15,10 @@ gem "tzinfo-data", platforms: %i[ mswin mswin64 mingw x64_mingw jruby ]
 gem "bootsnap", require: false
 
 gem "rails_event_store"
-gem "clerk-sdk-ruby"
+gem "clerk-sdk-ruby", require: false
 gem "faraday"
+gem "json", "~> 2.7"
+gem "good_job"
 
 group :development, :test do
   gem "debug", platforms: %i[ mri mswin mswin64 mingw x64_mingw ]
@@ -35,4 +37,5 @@ group :test do
   gem "selenium-webdriver"
   gem "webmock"
   gem "vcr"
+  gem "shoulda-matchers"
 end
