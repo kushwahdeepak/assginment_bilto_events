@@ -10,10 +10,18 @@ RSpec.describe "Votes API", type: :request do
   end
 
   context "unauthenticated" do
-    it "returns 401 unauthorized" do
+    it "returns 401 and does not record a vote" do
+      EventStat.create!(event_id: event.id.to_s, upvotes_count: 0, downvotes_count: 0)
+      event_stream = "Event$#{event.id}"
+      events_before = Rails.configuration.event_store.read.stream(event_stream).to_a
+
       post "/events/#{event.id}/votes", params: { type: "upvote" }
 
       expect(response).to have_http_status(:unauthorized)
+      stat = EventStat.find_by!(event_id: event.id.to_s)
+      expect(stat.upvotes_count).to eq(0)
+      expect(stat.downvotes_count).to eq(0)
+      expect(Rails.configuration.event_store.read.stream(event_stream).to_a).to eq(events_before)
     end
 
     it "rejects authorization headers that are not bearer tokens" do
