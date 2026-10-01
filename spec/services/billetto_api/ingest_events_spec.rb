@@ -6,11 +6,11 @@ RSpec.describe BillettoApi::IngestEvents do
     JSON.generate({
       data: [
         {
-          id: "billetto_123",
-          title: "Music Festival",
-          description: "Fun outdoor event",
-          startdate: "2026-10-01T18:00:00Z",
-          image_link: "https://example.com/image.jpg"
+          id: "billetto_indore_food_festival",
+          title: "Indore Heritage Food Festival",
+          description: "Local food, music, and culture near Rajwada Palace in Indore, Madhya Pradesh.",
+          startdate: "2026-10-10T19:00:00+05:30",
+          image_link: "https://example.test/indore-food-festival.jpg"
         }
       ]
     })
@@ -27,16 +27,18 @@ RSpec.describe BillettoApi::IngestEvents do
       described_class.call(api_key: 'test_key', api_secret: 'test_secret')
     }.to change(Event, :count).by(1)
 
-    event = Event.find_by(external_id: "billetto_123")
-    expect(event.title).to eq("Music Festival")
-    expect(event.image_url).to eq("https://example.com/image.jpg")
+    event = Event.find_by(external_id: "billetto_indore_food_festival")
+    expect(event.title).to eq("Indore Heritage Food Festival")
+    expect(event.description).to include("Rajwada Palace", "Indore, Madhya Pradesh")
+    expect(event.start_date).to eq(Time.zone.parse("2026-10-10 19:00 +05:30"))
+    expect(event.image_url).to eq("https://example.test/indore-food-festival.jpg")
   end
 
   it "updates existing events on subsequent imports instead of duplicating them" do
-    Event.create!(external_id: "billetto_123", title: "Old title", start_date: Time.zone.parse("2026-10-01 18:00"))
+    Event.create!(external_id: "billetto_indore_food_festival", title: "Previous Indore listing", start_date: Time.zone.parse("2026-10-10 19:00 +05:30"))
 
     expect { described_class.call(api_key: 'test_key', api_secret: 'test_secret') }.not_to change(Event, :count)
-    expect(Event.find_by!(external_id: "billetto_123").title).to eq("Music Festival")
+    expect(Event.find_by!(external_id: "billetto_indore_food_festival").title).to eq("Indore Heritage Food Festival")
   end
 
   it "returns false when the API responds unsuccessfully" do
@@ -50,14 +52,14 @@ RSpec.describe BillettoApi::IngestEvents do
     stub_request(:get, api_url).with(headers: { 'Api-Keypair' => 'test_key:test_secret' }).to_return(
       status: 200,
       body: JSON.generate(data: [
-        { id: "valid_event", attributes: { title: "Valid", start_date: "2026-10-01T18:00:00Z" } },
-        { id: "invalid_event", attributes: { title: "Missing date" } }
+        { id: "billetto_indore_valid", attributes: { title: "Indore Food Walk", start_date: "2026-10-10T19:00:00+05:30" } },
+        { id: "billetto_indore_missing_date", attributes: { title: "Indore listing without a date" } }
       ])
     )
 
     expect(described_class.call(api_key: 'test_key', api_secret: 'test_secret')).to be(true)
     expect(Event.count).to eq(1)
-    expect(Event.find_by!(external_id: "valid_event").title).to eq("Valid")
+    expect(Event.find_by!(external_id: "billetto_indore_valid").title).to eq("Indore Food Walk")
   end
 
   it "returns false for malformed JSON" do
@@ -87,16 +89,16 @@ RSpec.describe BillettoApi::IngestEvents do
     stub_request(:get, api_url)
       .with(headers: { "Api-Keypair" => "test_key:test_secret" })
       .to_return(status: 200, body: JSON.generate(data: [
-        { id: "page_one", title: "First", startdate: "2026-10-01T18:00:00Z" }
+        { id: "billetto_indore_page_one", title: "Indore Food Walk", startdate: "2026-10-10T19:00:00+05:30" }
       ], next_url: second_page))
     stub_request(:get, second_page)
       .with(headers: { "Api-Keypair" => "test_key:test_secret" })
       .to_return(status: 200, body: JSON.generate(data: [
-        { id: "page_two", title: "New event", startdate: "2026-10-02T18:00:00Z" }
+        { id: "billetto_indore_page_two", title: "Indore Heritage Festival", startdate: "2026-10-11T19:00:00+05:30" }
       ]))
 
     expect(described_class.call(api_key: "test_key", api_secret: "test_secret")).to be(true)
-    expect(Event.find_by!(external_id: "page_two").title).to eq("New event")
+    expect(Event.find_by!(external_id: "billetto_indore_page_two").title).to eq("Indore Heritage Festival")
   end
 
   it "returns false when Billetto provides a malformed pagination URL" do

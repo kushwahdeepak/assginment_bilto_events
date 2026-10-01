@@ -1,7 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe "Votes API", type: :request do
-  let(:event) { Event.create!(external_id: "e1", title: "Test", start_date: Time.current) }
+  let(:event) do
+    Event.create!(
+      external_id: "billetto_indore_vote_test",
+      title: "Indore Food Festival",
+      start_date: Time.zone.parse("2026-10-10 19:00 +05:30")
+    )
+  end
 
   context "unauthenticated" do
     it "returns 401 unauthorized" do
@@ -23,7 +29,7 @@ RSpec.describe "Votes API", type: :request do
     before do
       allow_any_instance_of(Clerk::SDK).to receive(:verify_token)
         .with("test-token")
-        .and_return({ "sub" => "usr_12345" })
+        .and_return({ "sub" => "user_indore_12345" })
     end
 
     it "executes upvote successfully" do
@@ -32,9 +38,9 @@ RSpec.describe "Votes API", type: :request do
       expect(response).to have_http_status(:created)
       expect(EventStat.find_by!(event_id: event.id.to_s).upvotes_count).to eq(1)
 
-      stored_vote = Rails.configuration.event_store.read.stream("User$usr_12345").to_a.last
+      stored_vote = Rails.configuration.event_store.read.stream("User$user_indore_12345").to_a.last
       expect(stored_vote).to be_a(EventsDomain::EventUpvoted)
-      expect(stored_vote.data).to include(event_id: event.id.to_s, user_id: "usr_12345")
+      expect(stored_vote.data).to include(event_id: event.id.to_s, user_id: "user_indore_12345")
     end
 
     it "executes a downvote successfully" do
@@ -42,7 +48,7 @@ RSpec.describe "Votes API", type: :request do
 
       expect(response).to have_http_status(:created)
       expect(EventStat.find_by!(event_id: event.id.to_s).downvotes_count).to eq(1)
-      expect(Rails.configuration.event_store.read.stream("User$usr_12345").to_a.last)
+      expect(Rails.configuration.event_store.read.stream("User$user_indore_12345").to_a.last)
         .to be_a(EventsDomain::EventDownvoted)
     end
 
