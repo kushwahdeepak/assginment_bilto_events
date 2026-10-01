@@ -10,8 +10,9 @@ module BillettoApi
     PAGE_LIMIT = 100
     MAX_PAGES = 100
 
-    def self.call(api_key: ENV["BILLETTO_API_KEY"], api_secret: ENV["BILLETTO_API_SECRET"])
+    def self.call(api_key: Rails.application.credentials.dig(Rails.env.to_sym, :BILLETTO_API_KEY), api_secret: Rails.application.credentials.dig(Rails.env.to_sym, :BILLETTO_API_SECRET))
       new(api_key: api_key, api_secret: api_secret).call
+
     end
 
     def initialize(api_key:, api_secret: nil)
@@ -57,6 +58,7 @@ module BillettoApi
       events = []
       next_url = "#{API_URL}?limit=#{PAGE_LIMIT}"
       visited_urls = Set.new
+
 
       MAX_PAGES.times do
         raise InvalidResponse, "Billetto pagination repeated a page URL" unless visited_urls.add?(next_url)
